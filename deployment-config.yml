@@ -10,7 +10,7 @@ apiVersion: extensions/v1beta1
          app: employee-crud-express-app
      spec:
        containers:
-       - image: employee-crud-express
+       - image: prithvi1210/preetam:latest
          imagePullPolicy: Always
          name: hello-nodejs
          ports:
