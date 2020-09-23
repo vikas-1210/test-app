@@ -1,21 +1,26 @@
 var Employees = require('./employees.dao');
 var Joi = require('joi');
 
-const schema = Joi.object({
-    name: Joi.string().required(),
-    age: Joi.number().integer().min(18).max(60).required(),
-    department: Joi.string().required(),
-    email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
-});
-
 exports.createEmployee = function (req, res, next) {
+    let schema = Joi.object({
+        name: Joi.string().required(),
+        age: Joi.number().integer().min(18).max(60).required(),
+        department: Joi.string().required(),
+        email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
+    });
     const { error, value } = schema.validate(req.body);
     if(error){
             res.json({
                 error: error.message
             })
     } else{
-        Employees.createEmployee(JSON.parse(req.body), function(err, employee){
+        var employee = {
+            name: req.body.name,
+            age: req.body.age,
+            department: req.body.department,
+            email: req.body.email
+        };
+        Employees.create(employee, function(err, employee){
             if(err){
                 res.json({
                     error: err
@@ -42,7 +47,7 @@ exports.getEmployees = function(req, res, next) {
 }
 
 exports.getEmployee = function(req, res, next) {
-    Employees.get({name: req.params.name}, function(err, employees) {
+    Employees.get({_id: req.params.id}, function(err, employees) {
         if(err) {
             res.json({
                 error: err
@@ -55,16 +60,35 @@ exports.getEmployee = function(req, res, next) {
 }
 
 exports.updateEmployee = function(req, res, next) {
-    Employees.update({_id: req.params.id}, JSON.parse(req.body), function(err, employee) {
-        if(err) {
+    let schema = Joi.object({
+        name: Joi.string(),
+        age: Joi.number().integer().min(18).max(60),
+        department: Joi.string(),
+        email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
+    });
+    const { error, value } = schema.validate(req.body);
+    if(error){
             res.json({
-                error : err
+                error: error.message
             })
-        }
-        res.json({
-            message : "Employee updated successfully"
+    } else{
+        var employee = {
+            name: req.body.name,
+            age: req.body.age,
+            department: req.body.department,
+            email: req.body.email
+        };
+        Employees.update({_id: req.params.id}, employee, function(err, employee) {
+            if(err) {
+                res.json({
+                    error : err
+                })
+            }
+            res.json({
+                message : "Employee updated successfully"
+            })
         })
-    })
+    }
 }
 
 exports.removeEmployee = function(req, res, next) {

@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+ kind: Deployment
+ metadata:
+   name: employee-crud-express-app
+ spec:
+   replicas: 3
+   template:
+     metadata:
+       labels:
+         app: employee-crud-express-app
+     spec:
+       containers:
+       - image: employee-crud-express
+         imagePullPolicy: Always
+         name: hello-nodejs
+         ports:
+         - containerPort: 3000
